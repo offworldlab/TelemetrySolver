@@ -94,7 +94,7 @@ def test_command_line_interface():
             ['python', 'main.py', temp_file],
             capture_output=True,
             text=True,
-            cwd='/Users/jehanazad/TelemetrySolver'
+            cwd='.'
         )
         
         # Check output
@@ -147,7 +147,7 @@ def test_no_solution_case():
             ['python', 'main.py', temp_file],
             capture_output=True,
             text=True,
-            cwd='/Users/jehanazad/TelemetrySolver'
+            cwd='.'
         )
         
         # Should complete without error
@@ -175,7 +175,7 @@ def test_invalid_json():
             ['python', 'main.py', temp_file],
             capture_output=True,
             text=True,
-            cwd='/Users/jehanazad/TelemetrySolver'
+            cwd='.'
         )
         
         # Should handle error gracefully

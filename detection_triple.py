@@ -1,5 +1,5 @@
 """
-Detection data structures for telemetry solver
+Detection data structures for 3-detection telemetry solver
 """
 import json
 from dataclasses import dataclass
@@ -36,13 +36,14 @@ class Detection:
 
 
 @dataclass
-class DetectionPair:
-    """Container for two simultaneous detections"""
+class DetectionTriple:
+    """Container for three simultaneous detections"""
     detection1: Detection
     detection2: Detection
+    detection3: Detection
     
     @classmethod
-    def from_json(cls, json_string: str) -> 'DetectionPair':
+    def from_json(cls, json_string: str) -> 'DetectionTriple':
         """Parse input JSON"""
         data = json.loads(json_string)
         
@@ -70,26 +71,44 @@ class DetectionPair:
             doppler_hz=det2_data['doppler_hz']
         )
         
-        return cls(det1, det2)
+        det3_data = data['detection3']
+        det3 = Detection(
+            sensor_lat=det3_data['sensor_lat'],
+            sensor_lon=det3_data['sensor_lon'],
+            ioo_lat=det3_data['ioo_lat'],
+            ioo_lon=det3_data['ioo_lon'],
+            freq_mhz=det3_data['freq_mhz'],
+            timestamp=det3_data['timestamp'],
+            bistatic_range_km=det3_data['bistatic_range_km'],
+            doppler_hz=det3_data['doppler_hz']
+        )
+        
+        return cls(det1, det2, det3)
     
     def get_enu_origin(self) -> Tuple[float, float, float]:
-        """Calculate midpoint between sensors in LLA"""
-        lat = (self.detection1.sensor_lat + self.detection2.sensor_lat) / 2
-        lon = (self.detection1.sensor_lon + self.detection2.sensor_lon) / 2
+        """Calculate centroid of three sensors in LLA"""
+        lat = (self.detection1.sensor_lat + self.detection2.sensor_lat + self.detection3.sensor_lat) / 3
+        lon = (self.detection1.sensor_lon + self.detection2.sensor_lon + self.detection3.sensor_lon) / 3
         alt = 0  # Sea level for origin
         return lat, lon, alt
+    
+    def get_all_detections(self) -> list:
+        """Return all three detections as a list for easier iteration"""
+        return [self.detection1, self.detection2, self.detection3]
 
 
-def load_detections(json_file: str) -> DetectionPair:
+def load_detections(json_file: str) -> DetectionTriple:
     """Load and validate input"""
     with open(json_file, 'r') as f:
         json_string = f.read()
     
-    pair = DetectionPair.from_json(json_string)
+    triple = DetectionTriple.from_json(json_string)
     
-    if not pair.detection1.validate():
+    if not triple.detection1.validate():
         raise ValueError("Detection 1 validation failed")
-    if not pair.detection2.validate():
+    if not triple.detection2.validate():
         raise ValueError("Detection 2 validation failed")
+    if not triple.detection3.validate():
+        raise ValueError("Detection 3 validation failed")
     
-    return pair
+    return triple

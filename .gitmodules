@@ -1,0 +1,6 @@
+[submodule "tools/adsb2dd"]
+	path = tools/adsb2dd
+	url = https://github.com/offworldlab/adsb2dd.git
+[submodule "tools/synthetic-adsb"]
+	path = tools/synthetic-adsb
+	url = https://github.com/offworldlab/synthetic-adsb.git
